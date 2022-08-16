@@ -83,7 +83,7 @@ class LogstashTransport extends Transport {
       return;
     }
 
-    let message = info[Symbol.for('message')
+    let message = info[Symbol.for('message')];
 
     setImmediate(() => {
       try {
