@@ -134,6 +134,8 @@ class LogstashTransport extends Transport {
   }
 
   connectTCP() {
+    console.log('Transport Socket Connecting.')
+
     const options = {
       host: this.host,
       port: this.port
@@ -157,15 +159,18 @@ class LogstashTransport extends Transport {
         this.announce();
         this.connectionState = 'CONNECTED';
       });
+
+      this.hookTCPSocketEvents();
     } else {
       this.socket = new net.Socket();
+      this.hookTCPSocketEvents();
+
       this.socket.connect(options, () => {
         this.socket.setKeepAlive(true, 60 * 1000);
         this.announce();
         this.connectionState = 'CONNECTED';
       });
     }
-    this.hookTCPSocketEvents();
   }
 
   hookTCPSocketEvents() {
@@ -204,7 +209,7 @@ class LogstashTransport extends Transport {
 
     this.socket.on('close', () => {
       console.log('Transport Socket Closing:', this.connectionState)
-      
+
       if (this.connectionState === 'TERMINATING') {
         return;
       }
@@ -217,7 +222,7 @@ class LogstashTransport extends Transport {
         //   this.emit('error', new Error('Max retries reached, placing transport in OFFLINE/silent mode.'));
         // });
       } else if (this.connectionState !== 'CONNECTING') {
-        console.log('Transport Socket Retrying Connection:')
+        console.log('Transport Socket Retrying Connection)
         setTimeout(() => {
           this.connect();
         }, this.timeoutConnectRetries);
