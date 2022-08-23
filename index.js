@@ -19,8 +19,8 @@ class LogstashTransport extends Transport {
       applicationName: process.title,
       pid: process.pid,
       silent: false,
-      maxConnectRetries: 4,
-      timeoutConnectRetries: 100,
+      maxConnectRetries: 5,
+      timeoutConnectRetries: 10000,
       sslEnable: false,
       sslKey: '',
       sslCert: '',
@@ -169,12 +169,14 @@ class LogstashTransport extends Transport {
   }
 
   hookTCPSocketEvents() {
-    this.socket.on('error', () => {
+    this.socket.on('error', (err) => {
       this.connectionState = 'NOT CONNECTED';
+      console.log('Transport Socket Error: ', err)
 
       if (this.socket && (typeof this.socket !== 'undefined')) {
         this.socket.destroy();
       }
+
       this.socket = null;
 
       this.emit('close');
@@ -201,6 +203,8 @@ class LogstashTransport extends Transport {
     });
 
     this.socket.on('close', () => {
+      console.log('Transport Socket Closing:', this.connectionState)
+      
       if (this.connectionState === 'TERMINATING') {
         return;
       }
@@ -213,6 +217,7 @@ class LogstashTransport extends Transport {
         //   this.emit('error', new Error('Max retries reached, placing transport in OFFLINE/silent mode.'));
         // });
       } else if (this.connectionState !== 'CONNECTING') {
+        console.log('Transport Socket Retrying Connection:')
         setTimeout(() => {
           this.connect();
         }, this.timeoutConnectRetries);
