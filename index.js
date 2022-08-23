@@ -222,7 +222,7 @@ class LogstashTransport extends Transport {
         //   this.emit('error', new Error('Max retries reached, placing transport in OFFLINE/silent mode.'));
         // });
       } else if (this.connectionState !== 'CONNECTING') {
-        console.log('Transport Socket Retrying Connection)
+        console.log('Transport Socket Retrying Connection')
         setTimeout(() => {
           this.connect();
         }, this.timeoutConnectRetries);
